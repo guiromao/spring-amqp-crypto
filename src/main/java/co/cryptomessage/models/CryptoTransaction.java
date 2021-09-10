@@ -1,7 +1,5 @@
 package co.cryptomessage.models;
 
-import org.springframework.stereotype.Component;
-
 import java.io.Serializable;
 
 public class CryptoTransaction implements Serializable {
