@@ -4,16 +4,15 @@ import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 
-@Component
-public class CryptoMovement implements Serializable {
+public class CryptoTransaction implements Serializable {
 
     private Coin coin;
 
-    public CryptoMovement() {
+    public CryptoTransaction() {
 
     }
 
-    public CryptoMovement(Coin coin, double price){
+    public CryptoTransaction(Coin coin, double price){
         this.coin = coin;
         this.coin.setPrice(price);
     }

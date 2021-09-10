@@ -1,6 +1,8 @@
 package co.cryptomessage;
 
 import static org.assertj.core.api.Assertions.*;
+
+import co.cryptomessage.services.CryptoMarket;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,11 +33,21 @@ public class RabbitTest {
     @Autowired
     CryptoWatcher cryptoWatcher;
 
+    @Autowired
+    CryptoMarket cryptoMarket;
+
     @Test
-    void testMovements() throws InterruptedException {
+    void testIsReceivingMessages() throws InterruptedException {
         Thread.sleep(3000);
 
-        assertThat(cryptoWatcher.getMovements()).hasSizeGreaterThan(0);
+        assertThat(cryptoWatcher.getTransactions()).hasSizeGreaterThan(0);
+    }
+
+    @Test
+    void testIsGeneratingMovements() throws InterruptedException {
+        Thread.sleep(2000);
+
+        assertThat(cryptoMarket.getTransactions()).hasSizeGreaterThan(0);
     }
 
 }

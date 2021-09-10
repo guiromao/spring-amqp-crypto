@@ -1,7 +1,7 @@
 package co.cryptomessage;
 
 import co.cryptomessage.commons.Commons;
-import co.cryptomessage.models.CryptoMovement;
+import co.cryptomessage.models.CryptoTransaction;
 import org.springframework.amqp.rabbit.annotation.Exchange;
 import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.QueueBinding;
@@ -19,13 +19,13 @@ public class CryptoWatcher {
 
     private Logger logger = Logger.getLogger(CryptoWatcher.class.getName());
     private FileHandler fileHandler;
-    private List<CryptoMovement> listMovements;
+    private List<CryptoTransaction> listTransactions;
 
     public CryptoWatcher() {
-        listMovements = new ArrayList<>();
+        listTransactions = new ArrayList<>();
         try {
-            fileHandler = new FileHandler("C:\\Users\\DreamMaker\\Coder\\spring-boot-crypto-message" +
-                    "\\CryptoMessage\\logs\\cryptoLogs.log");
+            fileHandler = new FileHandler("C:\\Users\\Guilherme\\Documents\\Coder" +
+                    "\\RabbitExample\\logs\\cryptoLogs.log");
 
             SimpleFormatter formatter = new SimpleFormatter();
             fileHandler.setFormatter(formatter);
@@ -45,16 +45,16 @@ public class CryptoWatcher {
                 key = "*"
             )
     )
-    public void listenForMovements(CryptoMovement movement) {
-        String message = "Logging crypto movement. Coin: " + movement.getCoin().getName() +
-                ". New Price: $" + movement.getCoin().getPrice();
+    public void listenForTransactions(CryptoTransaction transaction) {
+        String message = "Logging crypto transaction. Coin: " + transaction.getCoin().getName() +
+                ". New Price: $" + transaction.getCoin().getPrice();
         logger.info(message);
-        listMovements.add(movement);
+        listTransactions.add(transaction);
         System.out.println(message);
     }
 
-    public List<CryptoMovement> getMovements() {
-        return listMovements;
+    public List<CryptoTransaction> getTransactions() {
+        return listTransactions;
     }
 
 }

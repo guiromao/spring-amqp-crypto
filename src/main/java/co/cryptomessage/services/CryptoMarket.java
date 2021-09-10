@@ -2,8 +2,8 @@ package co.cryptomessage.services;
 
 import co.cryptomessage.commons.Commons;
 import co.cryptomessage.models.Coin;
-import co.cryptomessage.models.CryptoMovement;
-import org.springframework.amqp.core.AmqpTemplate;
+import co.cryptomessage.models.CryptoTransaction;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -24,46 +24,49 @@ public class CryptoMarket {
     );
 
     @Autowired
-    private AmqpTemplate amqpTemplate;
+    private RabbitTemplate rabbitTemplate;
 
-    private Map<String, CryptoMovement> lastTrade;
-    private List<CryptoMovement> tradingHistory;
+    private Map<String, CryptoTransaction> lastTrade;
+    private List<CryptoTransaction> tradingHistory;
 
     public CryptoMarket() {
         lastTrade = new HashMap<>();
         tradingHistory = new ArrayList<>();
 
         coins.forEach(coin -> {
-            CryptoMovement movement = new CryptoMovement(coin, coin.getPrice());
-            lastTrade.put(coin.getName(), movement);
-            tradingHistory.add(movement);
+            CryptoTransaction transaction = new CryptoTransaction(coin, coin.getPrice());
+            lastTrade.put(coin.getName(), transaction);
+            tradingHistory.add(transaction);
         });
     }
 
     @Scheduled(fixedRate = 500L)
-    public void marketMovement() {
-        CryptoMovement movement = createMovement();
-        lastTrade.put(movement.getCoin().getName(), movement);
-        tradingHistory.add(movement);
+    public void marketFlow() {
+        CryptoTransaction transaction = createTransaction();
+        lastTrade.put(transaction.getCoin().getName(), transaction);
+        tradingHistory.add(transaction);
 
-        String routingKey = movement.getCoin().getName();
-        amqpTemplate.convertAndSend(Commons.CRYPTO_MARKET, routingKey, movement);
-        //System.out.println(movement.toString());
+        String routingKey = transaction.getCoin().getName();
+        rabbitTemplate.convertAndSend(Commons.CRYPTO_MARKET, routingKey, transaction);
     }
 
-    private CryptoMovement createMovement() {
+    private CryptoTransaction createTransaction() {
         Coin coin = chooseRandomCoin();
         boolean isSum = ((int) Math.round(Math.random())) == 1 ? true : false;
         double variation = coin.getPrice() * RAND.nextDouble() * 0.1;
         double newPrice = isSum ? coin.getPrice() + variation : coin.getPrice() - variation;
 
-        return new CryptoMovement(coin, newPrice);
+        return new CryptoTransaction(coin, newPrice);
     }
 
     private Coin chooseRandomCoin() {
         int randNumber = (int) Math.round(Math.random() * (coins.size() - 1));
 
         return coins.get(randNumber);
+    }
+
+    public List<CryptoTransaction> getTransactions() {
+        return tradingHistory;
     }
 
 }
